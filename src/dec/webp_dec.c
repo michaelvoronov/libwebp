@@ -635,6 +635,31 @@ uint8_t* WebPDecodeRGB(const uint8_t* data, size_t data_size,
   return Decode(MODE_RGB, data, data_size, width, height, NULL);
 }
 
+uint8_t *allocate(uint32_t size) {
+  return malloc(size);
+}
+
+void deallocate(uint8_t* ptr, uint32_t size) {
+  free(ptr);
+}
+
+uint8_t *invoke(uint8_t* ptr, uint32_t size) {
+  int width = 0;
+  int height = 0;
+  uint8_t *result = WebPDecodeRGB(ptr, size, &width, &height);
+
+  int result_length = width * height * 4 + 4;
+  uint8_t *ret = allocate(result_length);
+
+  for (int i = 0; i < 4; ++i) {
+    ret[i] = (result_length >> 8 * i) & 0xFF;
+  }
+
+  memcpy(ret + 4, result, result_length);
+
+  return ret;
+}
+
 uint8_t* WebPDecodeRGBA(const uint8_t* data, size_t data_size,
                         int* width, int* height) {
   return Decode(MODE_RGBA, data, data_size, width, height, NULL);
